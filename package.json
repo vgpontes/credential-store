@@ -2,7 +2,7 @@
   "name": "credential-store",
   "version": "0.1.0",
   "bin": {
-    "empty": "bin/empty.js"
+    "credential-store": "bin/credential-store.js"
   },
   "scripts": {
     "build": "tsc",

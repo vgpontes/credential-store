@@ -2,10 +2,6 @@ name: credential-store-pipeline
 
 on: push
 
-defaults:
-  run:
-    working-directory: ${{ github.workspace }}/credential-store
-
 jobs:
   build-go:
     name: build Go backend

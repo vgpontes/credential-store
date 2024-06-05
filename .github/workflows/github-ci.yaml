@@ -19,9 +19,9 @@ jobs:
       - uses: actions/checkout@main
         with: 
           ref: ${{ github.ref }}
-      - run: ls
-      - name: Building Go backend
+      - name: Building Go login service
         run: GOOS=linux GOARCH=arm64 go build -tags lambda.norpc -o ./build/bootstrap ./src/loginService/loginService.go
+      - run: ls ./build
   
   cdk-synth:
     name: AWS CDK Synth
@@ -30,6 +30,9 @@ jobs:
     container:
       image: amazonlinux:2023
     steps:
+      - uses: actions/checkout@main
+        with:
+          ref: ${{ github.ref }}
       - name: Synthesizing AWS Infrastructure
         run: |
           cdk synth
@@ -41,6 +44,9 @@ jobs:
     container:
       image: node:20
     steps:
+      - uses: actions/checkout@main
+        with:
+          ref: ${{ github.ref }}
       - name: Running unit tests
         run: |
           npm i
@@ -53,6 +59,9 @@ jobs:
     container:
       image: amazonlinux:2023
     steps:
+      - uses: actions/checkout@main
+        with:
+          ref: ${{ github.ref }}
       - name: Deploying AWS Infrastructure
         run: |
           cdk diff

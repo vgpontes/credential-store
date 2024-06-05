@@ -1,12 +1,12 @@
 name: credential-store-pipeline
 
-on: 
-  push:
+on: push
+  #push:
     #branches:
       #- main
-  pull_request:
-    branches:
-      - main
+  #pull_request:
+    #branches:
+     # - main
   
 
 jobs:

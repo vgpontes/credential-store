@@ -11,6 +11,7 @@ jobs:
     steps:
       - name: Building Go backend
         run: |
+          pwd
           GOOS=linux GOARCH=arm64 go build -tags lambda.norpc -o ./build/bootstrap src/loginService/loginService.go
   
   cdk-synth:
@@ -33,6 +34,7 @@ jobs:
     steps:
       - name: Running unit tests
         run: |
+          pwd
           npm ci
           npm test
 

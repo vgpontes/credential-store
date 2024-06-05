@@ -30,7 +30,7 @@ jobs:
           ref: ${{ github.ref }}
       - name: Running unit tests
         run: |
-          npm ci
+          npm i
   
   cdk-synth:
     name: AWS CDK Synth
@@ -48,8 +48,9 @@ jobs:
           role-to-assume: arn:aws:iam::339712770705:role/credential-store-cicd-role
       - name: Synthesizing AWS Infrastructure
         run: |
-          cdk synth
-          cdk diff
+          npm i
+          npx cdk synth
+          npx cdk diff
 
   cdk-deploy:
     name: AWS CDK Deploy
@@ -57,11 +58,16 @@ jobs:
     needs: cdk-synth
     runs-on: ubuntu-latest
     container:
-      image: amazonlinux:2023
+      image: node:20
     steps:
       - uses: actions/checkout@main
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-east-1
+          role-to-assume: arn:aws:iam::339712770705:role/credential-store-cicd-role
       - name: Deploying AWS Infrastructure
         run: |
-          cdk diff
-          cdk deploy
+          npm i
+          npx cdk diff
+          npx cdk deploy
   

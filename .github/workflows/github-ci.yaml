@@ -20,6 +20,13 @@ jobs:
           cd ./lambda
           GOOS=linux GOARCH=arm64 go build -tags lambda.norpc -o ../build/loginService/bootstrap ./login_service/login_service.go
       - run: ls ./build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: go_build
+          path: build
+          if-no-files-found: error
+          retention-days: 1
+          overwrite: true
       
   unit-test:
     name: unit-test
@@ -45,6 +52,9 @@ jobs:
       - uses: actions/checkout@main
         with:
           ref: ${{ github.ref }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: go_build
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: us-east-1
@@ -64,6 +74,9 @@ jobs:
       image: node:20
     steps:
       - uses: actions/checkout@main
+      - uses: actions/download-artifact@v4
+        with:
+          name: go_build
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: us-east-1

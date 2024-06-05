@@ -13,7 +13,7 @@ jobs:
         run: |
           pwd
           ls
-          GOOS=linux GOARCH=arm64 go build -tags lambda.norpc -o ./build/bootstrap src/loginService/loginService.go
+          GOOS=linux GOARCH=arm64 go build -tags lambda.norpc -o ./build/bootstrap ./src/loginService/loginService.go
   
   cdk-synth:
     name: AWS CDK Synth

@@ -1,7 +1,7 @@
 import { Size } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { LambdaRestApi } from 'aws-cdk-lib/aws-apigateway';
-import { Function, Code, Runtime } from 'aws-cdk-lib/aws-lambda';
+import { Function, Code, Runtime, Architecture } from 'aws-cdk-lib/aws-lambda';
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
 
 export interface LoginServiceProps {
@@ -23,6 +23,7 @@ export class LoginService extends Construct {
       description: 'API for creating an account, logging in to an account, and resetting password.',
       handler: 'handler',
       runtime: Runtime.PROVIDED_AL2023,
+      architecture: Architecture.ARM_64,
       logGroup: lambdaLogGroup
     });
 

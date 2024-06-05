@@ -1,4 +1,4 @@
-module loginService
+module credential-store
 
 go 1.22.3
 

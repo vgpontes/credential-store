@@ -2,6 +2,10 @@ name: credential-store-pipeline
 
 on: push
 
+defaults:
+  run:
+    working-directory: ${{ github.workspace }}/credential-store
+
 jobs:
   build-go:
     name: build Go backend
@@ -11,8 +15,6 @@ jobs:
     steps:
       - name: Building Go backend
         run: |
-          pwd
-          ls
           GOOS=linux GOARCH=arm64 go build -tags lambda.norpc -o ./build/bootstrap ./src/loginService/loginService.go
   
   cdk-synth:
@@ -35,9 +37,7 @@ jobs:
     steps:
       - name: Running unit tests
         run: |
-          pwd
-          ls
-          npm ci
+          npm i
           npm test
 
   cdk-deploy:

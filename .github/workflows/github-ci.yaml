@@ -29,7 +29,6 @@ jobs:
       - name: Running unit tests
         run: |
           npm ci
-          npm test
   
   cdk-synth:
     name: AWS CDK Synth

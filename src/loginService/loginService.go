@@ -1,14 +1,12 @@
-package loginservice
-
-import "github.com/aws/aws-lambda-go/lambda"
+package main
 
 type Event struct {
 }
 
-func handler(event *Event) {
-
+func handler() {
+	print("Hello World")
 }
 
 func main() {
-	lambda.Start(handler)
+	handler()
 }

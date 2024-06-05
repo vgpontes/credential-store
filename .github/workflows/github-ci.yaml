@@ -37,9 +37,8 @@ jobs:
     needs: [build-go, unit-test]
     runs-on: ubuntu-latest
     container:
-      image: amazonlinux:2023
+      image: node:20
     steps:
-      - run: yum install tar gzip -y
       - uses: actions/checkout@main
         with:
           ref: ${{ github.ref }}

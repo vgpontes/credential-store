@@ -1,4 +1,3 @@
-import { Size } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { LambdaRestApi } from 'aws-cdk-lib/aws-apigateway';
 import { Function, Code, Runtime, Architecture } from 'aws-cdk-lib/aws-lambda';
@@ -20,7 +19,7 @@ export class LoginService extends Construct {
 
     const lambdaFunction = new Function(this, 'LoginServiceLambdaFn', {
       functionName: `${props.appName}-login-service`,
-      code: Code.fromAsset('./src/loginService'),
+      code: Code.fromAsset('./build/loginService'),
       description: 'API for creating an account, logging in to an account, and resetting password.',
       handler: 'handler',
       runtime: Runtime.PROVIDED_AL2023,

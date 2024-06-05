@@ -3,6 +3,7 @@ import { Construct } from 'constructs';
 import { LambdaRestApi } from 'aws-cdk-lib/aws-apigateway';
 import { Function, Code, Runtime, Architecture } from 'aws-cdk-lib/aws-lambda';
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
+import { AttributeType, TableV2 } from 'aws-cdk-lib/aws-dynamodb';
 
 export interface LoginServiceProps {
   appName: string,
@@ -30,6 +31,12 @@ export class LoginService extends Construct {
     new LambdaRestApi(this, 'LoginServiceRestApi', {
       handler: lambdaFunction,
       description: `REST API for ${props.appName} Login Service.`,
+    });
+
+    new TableV2(this, 'UserTable', {
+      tableName: `${props.appName}-users`,
+      partitionKey: { name: 'pk', type: AttributeType.STRING },
+      pointInTimeRecovery: true
     });
   }
 }

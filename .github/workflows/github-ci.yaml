@@ -1,7 +1,9 @@
 name: credential-store-pipeline
 
 on: push
-  
+
+permissions:
+  id-token: write
 
 jobs:
   build-go:

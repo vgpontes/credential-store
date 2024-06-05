@@ -1,0 +1,50 @@
+name: credential-store-pipeline
+
+on: push
+
+jobs:
+  build-go:
+    name: build Go backend
+    runs-on: ubuntu-latest
+    container:
+      image: golang
+    steps:
+      - name: Building Go backend
+        run: |
+          GOOS=linux GOARCH=arm64 go build -tags lambda.norpc -o ./build/bootstrap src/loginService/loginService.go
+  
+  cdk-synth:
+    name: AWS CDK Synth
+    needs: build-go
+    runs-on: ubuntu-latest
+    container:
+      image: amazonlinux:2023
+    steps:
+      - name: Synthesizing AWS Infrastructure
+        run: |
+          cdk synth
+          cdk diff
+  
+  unit-test:
+    name: unit-test
+    runs-on: ubuntu-latest
+    container:
+      image: node:20
+    steps:
+      - name: Running unit tests
+        run: |
+          npm ci
+          npm test
+
+  cdk-deploy:
+    name: AWS CDK Deploy
+    needs: [cdk-synth, unit-test]
+    runs-on: ubuntu-latest
+    container:
+      image: amazonlinux:2023
+    steps:
+      - name: Deploying AWS Infrastructure
+        run: |
+          cdk diff
+          cdk deploy
+  

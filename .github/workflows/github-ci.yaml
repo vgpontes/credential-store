@@ -56,7 +56,6 @@ jobs:
         with:
           name: go_build
           path: build/
-      - run: ls
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: us-east-1
@@ -79,6 +78,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: go_build
+          path: build/
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: us-east-1

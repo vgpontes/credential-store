@@ -1,6 +1,13 @@
 name: credential-store-pipeline
 
-on: push
+on: 
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  
 
 jobs:
   build-go:
@@ -9,6 +16,9 @@ jobs:
     container:
       image: golang
     steps:
+      - uses: actions/checkout@main
+        with: 
+          ref: ${{ github.ref }}
       - run: ls
       - name: Building Go backend
         run: GOOS=linux GOARCH=arm64 go build -tags lambda.norpc -o ./build/bootstrap ./src/loginService/loginService.go

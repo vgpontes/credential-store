@@ -1,0 +1,92 @@
+name: credential-store-pipeline
+
+on: push
+
+permissions:
+  id-token: write
+
+jobs:
+  build-go:
+    name: build Go backend
+    runs-on: ubuntu-latest
+    container:
+      image: golang
+    steps:
+      - uses: actions/checkout@main
+        with: 
+          ref: ${{ github.ref }}
+      - name: Building Go login service
+        run: |
+          cd ./lambda
+          GOOS=linux GOARCH=arm64 go build -tags lambda.norpc -o ../build/loginService/bootstrap ./login_service/login_service.go
+      - run: ls ./build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: go_build
+          path: build
+          if-no-files-found: error
+          retention-days: 1
+          overwrite: true
+      
+  unit-test:
+    name: unit-test
+    runs-on: ubuntu-latest
+    container:
+      image: golang
+    steps:
+      - uses: actions/checkout@main
+        with:
+          ref: ${{ github.ref }}
+      - name: Running unit tests
+        run: |
+          cd ./lambda
+          go test ./...
+  
+  cdk-synth:
+    name: AWS CDK Synth
+    needs: [build-go, unit-test]
+    runs-on: ubuntu-latest
+    container:
+      image: node:20
+    steps:
+      - uses: actions/checkout@main
+        with:
+          ref: ${{ github.ref }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: go_build
+          path: build/
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-east-1
+          role-to-assume: arn:aws:iam::339712770705:role/credential-store-cicd-role
+      - name: Synthesizing AWS Infrastructure
+        run: |
+          npm i
+          npx cdk synth --no-staging
+          npx cdk diff
+
+  cdk-deploy:
+    name: AWS CDK Deploy
+    if: github.ref == 'refs/heads/main'
+    needs: cdk-synth
+    runs-on: ubuntu-latest
+    container:
+      image: node:20
+    steps:
+      - uses: actions/checkout@main
+      - uses: actions/download-artifact@v4
+        with:
+          name: go_build
+          path: build/
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-east-1
+          role-to-assume: arn:aws:iam::339712770705:role/credential-store-cicd-role
+      - name: Deploying AWS Infrastructure
+        run: |
+          npm i
+          npx cdk bootstrap
+          npx cdk diff
+          npx cdk deploy
+  

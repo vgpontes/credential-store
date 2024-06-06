@@ -71,6 +71,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     needs: cdk-synth
     runs-on: ubuntu-latest
+    environment: manual_approval
     container:
       image: node:20
     steps:

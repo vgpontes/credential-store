@@ -7,7 +7,8 @@
   "scripts": {
     "build": "npm run build-login",
     "build-login": "GOOS=linux GOARCH=arm64 go build -tags lambda.norpc -o ../build/loginService/bootstrap ./login_service/login_service.go",
-    "sam-invoke": "cdk synth --no-staging && sam local invoke $LAMBDA_FN --no-event -t ./cdk.out/CredentialStore.template.json"
+    "sam-invoke": "cdk synth --no-staging && sam local invoke $LAMBDA_FN --no-event -t ./cdk.out/CredentialStore.template.json",
+    "start-api": "cdk synth --no-staging && sam local start-api -t ./cdk.out/CredentialStore.template.json"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",

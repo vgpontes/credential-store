@@ -13,6 +13,7 @@ export class CredentialStoreStack extends Stack {
 
     new LoginService(this, 'CredentialStoreLoginService', {
         appName: 'credential-store',
+        dbAppName: 'CredentialStore',
         vpc: credentialStoreVpc
     });
   }

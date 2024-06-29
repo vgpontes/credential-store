@@ -1,11 +1,13 @@
 import { Construct } from 'constructs';
-import { LambdaRestApi } from 'aws-cdk-lib/aws-apigateway';
+import { LambdaRestApi, ResponseType } from 'aws-cdk-lib/aws-apigateway';
 import { Function, Code, Runtime, Architecture } from 'aws-cdk-lib/aws-lambda';
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
-import { AttributeType, TableV2 } from 'aws-cdk-lib/aws-dynamodb';
+import { DatabaseInstance, DatabaseInstanceEngine } from 'aws-cdk-lib/aws-rds';
+import { IVpc, InstanceClass, InstanceSize, InstanceType } from 'aws-cdk-lib/aws-ec2';
 
 export interface LoginServiceProps {
   appName: string,
+  vpc: IVpc
 }
 
 export class LoginService extends Construct {
@@ -27,15 +29,34 @@ export class LoginService extends Construct {
       logGroup: lambdaLogGroup
     });
 
-    new LambdaRestApi(this, 'LoginServiceRestApi', {
+    const loginApi = new LambdaRestApi(this, 'LoginServiceRestApi', {
       handler: lambdaFunction,
       description: `REST API for ${props.appName} Login Service.`,
     });
 
-    new TableV2(this, 'UserTable', {
-      tableName: `${props.appName}-users`,
-      partitionKey: { name: 'pk', type: AttributeType.STRING },
-      pointInTimeRecovery: true
+    loginApi.addGatewayResponse('LoginServiceUnauthenticated', {
+      type: ResponseType.MISSING_AUTHENTICATION_TOKEN,
+      templates: {
+        'application/json': '{ "message": $context.error.messageString, "statusCode": "488", "type": "$context.error.responseType" }'
+      }
+    });
+
+    loginApi.addGatewayResponse('LoginServiceUnauthorized', {
+      type: ResponseType.ACCESS_DENIED,
+      templates: {
+        'application/json': '{ "message": $context.error.messageString, "statusCode": "488", "type": "$context.error.responseType" }'
+      }
+    });
+
+    new DatabaseInstance(this, 'UserDB', {
+      databaseName: `${props.appName}-users`,
+      instanceIdentifier: `${props.appName}-users`,
+      engine: DatabaseInstanceEngine.POSTGRES,
+      vpc: props.vpc,
+      allocatedStorage: 20, // GiB
+      cloudwatchLogsRetention: 14,
+      instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.NANO),
+      publiclyAccessible: false
     });
   }
 }

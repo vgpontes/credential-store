@@ -7,6 +7,7 @@ import { IVpc, InstanceClass, InstanceSize, InstanceType } from 'aws-cdk-lib/aws
 
 export interface LoginServiceProps {
   appName: string,
+  dbAppName: string,
   vpc: IVpc
 }
 
@@ -49,7 +50,7 @@ export class LoginService extends Construct {
     });
 
     new DatabaseInstance(this, 'UserDB', {
-      databaseName: `${props.appName}-users`,
+      databaseName: `${props.dbAppName}Users`,
       instanceIdentifier: `${props.appName}-users`,
       engine: DatabaseInstanceEngine.POSTGRES,
       vpc: props.vpc,

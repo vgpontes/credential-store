@@ -89,5 +89,5 @@ jobs:
           npm i
           npx cdk bootstrap
           npx cdk diff
-          npx cdk deploy
+          npx cdk deploy --require-approval never
   

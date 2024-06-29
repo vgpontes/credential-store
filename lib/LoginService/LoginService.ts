@@ -15,7 +15,7 @@ export class LoginService extends Construct {
     super(scope, id);
 
     const lambdaLogGroup = new LogGroup(this, 'LoginServiceLambdaLogGroup', {
-      logGroupName: `/aws/lambda/${props.appName}`,
+      logGroupName: `/aws/lambda/${props.appName}-login-service`,
       retention: RetentionDays.TWO_WEEKS
     });
 

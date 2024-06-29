@@ -55,7 +55,7 @@ export class LoginService extends Construct {
       vpc: props.vpc,
       allocatedStorage: 20, // GiB
       cloudwatchLogsRetention: 14,
-      instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.NANO),
+      instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.MICRO),
       publiclyAccessible: false
     });
   }

@@ -18,7 +18,7 @@ export class CredentialStoreApiGateway extends Construct {
 
         const authServiceLambda = new LambdaFunction(this, 'AuthServiceLambdaFn', {
             functionName: 'credential-store-auth-service',
-            codePath: './build/authService',
+            codePath: './build/auth_service',
             description: 'API for creating an account, logging in to an account, and resetting password.',
             handler: 'handler',
             runtime: Runtime.PROVIDED_AL2023,

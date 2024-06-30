@@ -1,20 +1,15 @@
-import { Stack, StackProps } from 'aws-cdk-lib';
-import { Construct } from 'constructs';
-import { LoginService } from './LoginService/LoginService';
-import { Vpc } from 'aws-cdk-lib/aws-ec2';
+import { App, Stack } from 'aws-cdk-lib';
+import { InstanceClass, InstanceSize, InstanceType, Vpc } from 'aws-cdk-lib/aws-ec2';
+import { DatabaseInstance, DatabaseInstanceEngine } from 'aws-cdk-lib/aws-rds';
+import { CredentialStoreApiGateway } from './ApiGateway/ApiGateway';
+import { CredentialStoreDB } from './RDS/Database';
 
 export class CredentialStoreStack extends Stack {
-  constructor(scope: Construct, id: string, props?: StackProps) {
+  constructor(scope: App, id: string) {
     super(scope, id);
 
-    const credentialStoreVpc = new Vpc(this, 'CredentialStoreVPC', {
-      vpcName: 'credential-store-vpc',
-    });
+    new CredentialStoreDB(this, 'CredentialStoreDB');
 
-    new LoginService(this, 'CredentialStoreLoginService', {
-        appName: 'credential-store',
-        dbAppName: 'CredentialStore',
-        vpc: credentialStoreVpc
-    });
+    new CredentialStoreApiGateway(this, 'CredentialStoreAPIGateway');
   }
 }

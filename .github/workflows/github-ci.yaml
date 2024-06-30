@@ -68,7 +68,7 @@ jobs:
 
   cdk-deploy:
     name: AWS CDK Deploy
-    if: github.ref == 'refs/heads/main'
+    #if: github.ref == 'refs/heads/main'
     needs: cdk-synth
     runs-on: ubuntu-latest
     environment: manual_approval

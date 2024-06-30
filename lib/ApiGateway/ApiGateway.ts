@@ -24,9 +24,24 @@ export class CredentialStoreApiGateway extends Construct {
             runtime: Runtime.PROVIDED_AL2023,
             architecture: Architecture.ARM_64,
             logGroupRetention: RetentionDays.TWO_WEEKS
-        })
+        });
+
+        const usersLambda = new LambdaFunction(this, 'UsersLambdaFn', {
+            functionName: 'credential-store-users-api',
+            codePath: './build/users',
+            description: 'API for getting or adding users',
+            handler: 'handler',
+            runtime: Runtime.PROVIDED_AL2023,
+            architecture: Architecture.ARM_64,
+            logGroupRetention: RetentionDays.TWO_WEEKS
+        });
       
-        const authResource = api.root.addResource("authorize");
-        authResource.addMethod("POST", new LambdaIntegration(authServiceLambda.lambdaFunction))
+        const authResource = api.root.addResource("authorize", { defaultIntegration: new LambdaIntegration(authServiceLambda.lambdaFunction) });
+        authResource.addMethod("POST")
+
+        const usersResource = api.root.addResource("users", { defaultIntegration: new LambdaIntegration(usersLambda.lambdaFunction) });
+        usersResource.addMethod("GET");
+
+        usersResource.addProxy();
     }
 }

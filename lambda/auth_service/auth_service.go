@@ -40,7 +40,7 @@ func newUser(userName string, password string) *User {
 
 func main() {
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /login", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("POST /authorize", func(w http.ResponseWriter, r *http.Request) {
 		user := newUser("makarimi", "erhjdeer145")
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)

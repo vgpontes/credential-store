@@ -10,7 +10,10 @@ export class CredentialStoreApiGateway extends Construct {
       
         const api = new RestApi(this, 'CredentialStoreApi', {
             restApiName: 'Credential-Store API',
-            description: "API Gateway for Credential-Store"
+            description: "API Gateway for Credential-Store",
+            deployOptions: {
+                stageName: "api"
+            }
         });
 
         const authServiceLambda = new LambdaFunction(this, 'AuthServiceLambdaFn', {

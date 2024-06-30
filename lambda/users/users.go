@@ -58,5 +58,5 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /users/{username}", handleGetUser)
 	mux.HandleFunc("GET /users", handleGetUsers)
-	lambda.Start(httpadapter.NewV2(mux).ProxyWithContext)
+	lambda.Start(httpadapter.New(mux).ProxyWithContext)
 }

@@ -29,9 +29,9 @@ func handleGetUser(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
 			json.NewEncoder(w).Encode(user)
+			break
 		} else {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusBadRequest)
+			http.Error(w, "Something went wrong", http.StatusInternalServerError)
 		}
 	}
 }
@@ -58,5 +58,5 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /users/{username}", handleGetUser)
 	mux.HandleFunc("GET /users", handleGetUsers)
-	lambda.Start(httpadapter.New(mux).ProxyWithContext)
+	lambda.Start(httpadapter.NewV2(mux).ProxyWithContext)
 }

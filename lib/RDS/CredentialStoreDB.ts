@@ -10,11 +10,13 @@ export class CredentialStoreDB extends Construct {
 
   constructor(scope: Construct, id:string) {
     super(scope, id);
-
+    
     const credentialStoreVpc = new Vpc(this, 'CredentialStoreVPC', {
       vpcName: 'credential-store-vpc',
+      enableDnsHostnames: true,
+      enableDnsSupport: true
     });
-      
+
     const database = new DatabaseInstance(this, 'CredentialStoreUserDB', {
       databaseName: `CredentialStoreDB`,
       instanceIdentifier: `credentialstoredb`,

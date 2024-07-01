@@ -1,8 +1,6 @@
 import { App, Stack } from 'aws-cdk-lib';
-import { InstanceClass, InstanceSize, InstanceType, Vpc } from 'aws-cdk-lib/aws-ec2';
-import { DatabaseInstance, DatabaseInstanceEngine } from 'aws-cdk-lib/aws-rds';
-import { CredentialStoreApiGateway } from './ApiGateway/ApiGateway';
-import { CredentialStoreDB } from './RDS/Database';
+import { CredentialStoreApiGateway } from './ApiGateway/CredentialStoreApiGateway';
+import { CredentialStoreDB } from './RDS/CredentialStoreDB';
 
 export class CredentialStoreStack extends Stack {
   constructor(scope: App, id: string) {

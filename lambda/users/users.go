@@ -28,7 +28,7 @@ func handleGetUser(w http.ResponseWriter, r *http.Request) {
 		if Users[i].Username == userName {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
-			json.NewEncoder(w).Encode(Users[i].Username)
+			json.NewEncoder(w).Encode(Users[i])
 			break
 		}
 	}

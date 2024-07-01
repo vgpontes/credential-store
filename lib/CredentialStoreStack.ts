@@ -8,8 +8,10 @@ export class CredentialStoreStack extends Stack {
   constructor(scope: App, id: string) {
     super(scope, id);
 
-    new CredentialStoreDB(this, 'CredentialStoreDB');
+    const rdsDatabase = new CredentialStoreDB(this, 'CredentialStoreDB');
 
-    new CredentialStoreApiGateway(this, 'CredentialStoreAPIGateway');
+    new CredentialStoreApiGateway(this, 'CredentialStoreAPIGateway', {
+      dbInfo: rdsDatabase.dbInfo
+    });
   }
 }

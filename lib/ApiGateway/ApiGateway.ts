@@ -1,11 +1,16 @@
 import { LambdaIntegration, RestApi } from "aws-cdk-lib/aws-apigateway";
 import { Construct } from "constructs";
-import { LambdaFunction } from "../Lambda/AuthService";
+import { LambdaFunction } from "../Lambda/LambdaFunction";
 import { Architecture, Runtime } from "aws-cdk-lib/aws-lambda";
 import { RetentionDays } from "aws-cdk-lib/aws-logs";
+import { ISecret } from "aws-cdk-lib/aws-secretsmanager";
+
+export interface CredentialStoreApiGatewayProps {
+    dbInfo : ISecret
+}
 
 export class CredentialStoreApiGateway extends Construct {
-    constructor(scope: Construct, id: string) {
+    constructor(scope: Construct, id: string, props: CredentialStoreApiGatewayProps) {
         super(scope, id);
       
         const api = new RestApi(this, 'CredentialStoreApi', {
@@ -23,8 +28,13 @@ export class CredentialStoreApiGateway extends Construct {
             handler: 'handler',
             runtime: Runtime.PROVIDED_AL2023,
             architecture: Architecture.ARM_64,
-            logGroupRetention: RetentionDays.TWO_WEEKS
+            logGroupRetention: RetentionDays.TWO_WEEKS,
+            environmentVariables: {
+                "DB_SECRET_ID": props.dbInfo.secretName
+            }
         });
+
+        props.dbInfo.grantRead(authServiceLambda.lambdaFunction);
 
         const usersLambda = new LambdaFunction(this, 'UsersLambdaFn', {
             functionName: 'credential-store-users-api',

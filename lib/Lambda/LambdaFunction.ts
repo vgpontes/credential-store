@@ -10,6 +10,7 @@ export interface LambdaFunctionProps {
     runtime : Runtime
     architecture : Architecture
     logGroupRetention : RetentionDays
+    environmentVariables? : {[key:string]:string}
 }
 
 export class LambdaFunction extends Construct {
@@ -31,7 +32,8 @@ export class LambdaFunction extends Construct {
             handler: props.handler,
             runtime: props.runtime,
             architecture: props.architecture,
-            logGroup: lambdaLogGroup
+            logGroup: lambdaLogGroup,
+            environment: props.environmentVariables
         });
     }
 }

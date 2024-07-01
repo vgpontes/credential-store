@@ -24,14 +24,12 @@ var Users = []User{
 
 func handleGetUser(w http.ResponseWriter, r *http.Request) {
 	userName := r.PathValue("username")
-	for _, user := range Users {
-		if user.Username == userName {
+	for i := range Users {
+		if Users[i].Username == userName {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
-			json.NewEncoder(w).Encode(user)
+			json.NewEncoder(w).Encode(Users[i].Username)
 			break
-		} else {
-			http.Error(w, "Something went wrong", http.StatusInternalServerError)
 		}
 	}
 }

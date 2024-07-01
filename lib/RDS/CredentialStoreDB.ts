@@ -1,4 +1,4 @@
-import { InstanceClass, InstanceSize, InstanceType, SubnetType, Vpc } from "aws-cdk-lib/aws-ec2";
+import { InstanceClass, InstanceSize, InstanceType, Peer, Port, SecurityGroup, SubnetType, Vpc } from "aws-cdk-lib/aws-ec2";
 import { Key } from "aws-cdk-lib/aws-kms";
 import { Credentials, DatabaseInstance, DatabaseInstanceEngine } from "aws-cdk-lib/aws-rds";
 import { ISecret, Secret } from "aws-cdk-lib/aws-secretsmanager";
@@ -21,6 +21,11 @@ export class CredentialStoreDB extends Construct {
           cidrMask: 24,
           name: 'ingress',
           subnetType: SubnetType.PUBLIC
+        },
+        {
+          cidrMask: 24,
+          name: 'application',
+          subnetType: SubnetType.PRIVATE_ISOLATED
         }
       ]
     });
@@ -37,8 +42,13 @@ export class CredentialStoreDB extends Construct {
       allocatedStorage: 20, // GiB
       cloudwatchLogsRetention: 14,
       instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.MICRO),
-      publiclyAccessible: true
+      publiclyAccessible: true,
+      vpcSubnets: {
+        subnetType: SubnetType.PUBLIC
+      }
     });
+
+    database.connections.allowDefaultPortFromAnyIpv4();
 
     this.dbInfo = database.secret!;
   }

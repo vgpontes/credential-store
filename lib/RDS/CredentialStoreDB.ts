@@ -1,4 +1,4 @@
-import { InstanceClass, InstanceSize, InstanceType, Vpc } from "aws-cdk-lib/aws-ec2";
+import { InstanceClass, InstanceSize, InstanceType, SubnetType, Vpc } from "aws-cdk-lib/aws-ec2";
 import { Key } from "aws-cdk-lib/aws-kms";
 import { Credentials, DatabaseInstance, DatabaseInstanceEngine } from "aws-cdk-lib/aws-rds";
 import { ISecret, Secret } from "aws-cdk-lib/aws-secretsmanager";
@@ -14,7 +14,15 @@ export class CredentialStoreDB extends Construct {
     const credentialStoreVpc = new Vpc(this, 'CredentialStoreVPC', {
       vpcName: 'credential-store-vpc',
       enableDnsHostnames: true,
-      enableDnsSupport: true
+      enableDnsSupport: true,
+      createInternetGateway: true,
+      subnetConfiguration: [
+        {
+          cidrMask: 24,
+          name: 'ingress',
+          subnetType: SubnetType.PUBLIC
+        }
+      ]
     });
 
     const database = new DatabaseInstance(this, 'CredentialStoreUserDB', {

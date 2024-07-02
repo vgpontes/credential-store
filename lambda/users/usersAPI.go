@@ -45,5 +45,15 @@ func (s *APIServer) Run() {
 }
 
 func (s *APIServer) handleCreateAccount(w http.ResponseWriter, r *http.Request) error {
-	return nil
+	createUserReq := CreateUserRequest{}
+	if err := json.NewDecoder(r.Body).Decode(&createUserReq); err != nil {
+		return err
+	}
+
+	user := NewUser(createUserReq.Username, createUserReq.Password)
+	if err := s.db.CreateUser(user); err != nil {
+		return err
+	}
+
+	return WriteJSON(w, http.StatusOK, user)
 }

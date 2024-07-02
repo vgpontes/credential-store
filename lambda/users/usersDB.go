@@ -37,6 +37,24 @@ func NewPostgresDB() (*PostgresDB, error) {
 	}, nil
 }
 
+func (s *PostgresDB) Init() error {
+	return s.createUserTable()
+}
+
+func (s *PostgresDB) createUserTable() error {
+	sqlStatement := `
+		CREATE TABLE IF NOT EXISTS users(
+		user_id SERIAL PRIMARY KEY,
+		username VARCHAR(50) UNIQUE NOT NULL,
+		password VARCHAR(50) NOT NULL,
+		salt VARCHAR(50) NOT NULL,
+		is_admin BOOLEAN NOT NULL,
+		created_at TIMESTAMP NOT NULL)`
+	
+	_, err := s.db.Exec(sqlStatement)
+	return err
+}
+
 func (s *PostgresDB) CreateUser(*User) error {
 	return nil
 }

@@ -1,4 +1,4 @@
-package users
+package main
 
 type User struct {
 	UserID   uint   `json:"userID"`
@@ -7,4 +7,3 @@ type User struct {
 	Salt     string `json:"salt"`
 	IsAdmin  bool   `json:"isAdmin"`
 }
-

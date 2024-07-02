@@ -1,6 +1,8 @@
-package users
+package main
 
-import "log"
+import (
+	"log"
+)
 
 func main() {
 	db, err := NewPostgresDB()

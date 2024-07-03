@@ -20,7 +20,7 @@ type PostgresDB struct {
 }
 
 func NewPostgresDB() (*PostgresDB, error) {
-	connStr := "postgres://postgres:geogGkshTw^Tw5BU5bT1rP_iTOWqpn@credentialstoredb.cr22sw42g2wm.us-east-1.rds.amazonaws.com:5432"
+	connStr := "postgres://postgres:geogGkshTw%5ETw5BU5bT1rP_iTOWqpn@credentialstoredb.cr22sw42g2wm.us-east-1.rds.amazonaws.com:5432"
 	//Pass the driver name and the connection string
 	db, err := sql.Open("pgx", connStr)
 	if err != nil {

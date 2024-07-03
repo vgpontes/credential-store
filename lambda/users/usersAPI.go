@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/awslabs/aws-lambda-go-api-proxy/httpadapter"
@@ -41,6 +42,9 @@ func NewAPIServer(db Database) *APIServer {
 func (s *APIServer) Run() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /users/signup", makeHTTPHandlerFunc(s.handleCreateAccount))
+	mux.HandleFunc("GET /users", makeHTTPHandlerFunc(s.handleGetUser))
+	mux.HandleFunc("GET /users/{username}", makeHTTPHandlerFunc(s.handleGetUserByUsername))
+	mux.HandleFunc("GET /users/{id}", makeHTTPHandlerFunc(s.handleGetUserByID))
 	lambda.Start(httpadapter.New(mux).ProxyWithContext)
 }
 
@@ -56,4 +60,34 @@ func (s *APIServer) handleCreateAccount(w http.ResponseWriter, r *http.Request) 
 	}
 
 	return WriteJSON(w, http.StatusOK, user)
+}
+
+func (s *APIServer) handleGetUser(w http.ResponseWriter, r *http.Request) error {
+	users, err := s.db.GetUsers()
+	if err != nil {
+		return err
+	}
+	return WriteJSON(w, http.StatusOK, users)
+}
+
+func (s *APIServer) handleGetUserByID(w http.ResponseWriter, r *http.Request) error {
+	userIDStr := r.PathValue("id")
+	userID, err := strconv.Atoi(userIDStr)
+	if err != nil {
+		return err
+	}
+	username, err := s.db.GetUserByID(userID)
+	if err != nil {
+		return err
+	}
+	return WriteJSON(w, http.StatusOK, username)
+}
+
+func (s *APIServer) handleGetUserByUsername(w http.ResponseWriter, r *http.Request) error {
+	usernameStr := r.PathValue("username")
+	username, err := s.db.GetUserByUsername(usernameStr)
+	if err != nil {
+		return err
+	}
+	return WriteJSON(w, http.StatusOK, username)
 }

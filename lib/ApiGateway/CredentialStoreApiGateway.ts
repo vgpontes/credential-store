@@ -34,6 +34,7 @@ export class CredentialStoreApiGateway extends Construct {
             environmentVariables: {
                 "DB_SECRET_ID": props.database.secret!.secretName
             },
+            vpc: props.vpc
         });
 
         props.database.secret!.grantRead(authServiceLambda.lambdaFunction);
@@ -46,7 +47,11 @@ export class CredentialStoreApiGateway extends Construct {
             handler: 'handler',
             runtime: Runtime.PROVIDED_AL2023,
             architecture: Architecture.ARM_64,
-            logGroupRetention: RetentionDays.TWO_WEEKS
+            logGroupRetention: RetentionDays.TWO_WEEKS,
+            environmentVariables: {
+                "DB_SECRET_ID": props.database.secret!.secretName
+            },
+            vpc: props.vpc
         });
 
         props.database.connections.allowDefaultPortFrom(usersLambda.lambdaFunction.connections);

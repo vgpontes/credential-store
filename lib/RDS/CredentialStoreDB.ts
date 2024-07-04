@@ -41,7 +41,10 @@ export class CredentialStoreDB extends Construct {
       allocatedStorage: 20, // GiB
       cloudwatchLogsRetention: 14,
       instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.MICRO),
-      publiclyAccessible: false
+      publiclyAccessible: false,
+      vpcSubnets: {
+        subnetType: SubnetType.PRIVATE_ISOLATED
+      }
     });
   }
 }

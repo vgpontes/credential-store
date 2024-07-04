@@ -1,17 +1,17 @@
-import { InstanceClass, InstanceSize, InstanceType, Peer, Port, SecurityGroup, SubnetType, Vpc } from "aws-cdk-lib/aws-ec2";
-import { Key } from "aws-cdk-lib/aws-kms";
-import { Credentials, DatabaseInstance, DatabaseInstanceEngine } from "aws-cdk-lib/aws-rds";
-import { ISecret, Secret } from "aws-cdk-lib/aws-secretsmanager";
+import { IVpc, InstanceClass, InstanceSize, InstanceType, SubnetType, Vpc } from "aws-cdk-lib/aws-ec2";
+import { Credentials, DatabaseInstance, DatabaseInstanceEngine, IDatabaseInstance } from "aws-cdk-lib/aws-rds";
+import { ISecret } from "aws-cdk-lib/aws-secretsmanager";
 import { Construct } from "constructs";
 
 export class CredentialStoreDB extends Construct {
 
-  readonly dbInfo : ISecret;
+  readonly credentialStoreVpc : IVpc
+  readonly database : DatabaseInstance;
 
   constructor(scope: Construct, id:string) {
     super(scope, id);
     
-    const credentialStoreVpc = new Vpc(this, 'CredentialStoreVPC', {
+    this.credentialStoreVpc = new Vpc(this, 'CredentialStoreVPC', {
       vpcName: 'credential-store-vpc',
       enableDnsHostnames: true,
       enableDnsSupport: true,
@@ -30,26 +30,18 @@ export class CredentialStoreDB extends Construct {
       ]
     });
 
-    const database = new DatabaseInstance(this, 'CredentialStoreUserDB', {
+    this.database = new DatabaseInstance(this, 'CredentialStoreUserDB', {
       databaseName: `CredentialStoreDB`,
       instanceIdentifier: `credentialstoredb`,
       engine: DatabaseInstanceEngine.POSTGRES,
-      vpc: credentialStoreVpc,
+      vpc: this.credentialStoreVpc,
       credentials: Credentials.fromGeneratedSecret('postgres', {
-        secretName: 'credential-store-db-credentials',
-        
+        secretName: 'credential-store-db-credentials'
       }),
       allocatedStorage: 20, // GiB
       cloudwatchLogsRetention: 14,
       instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.MICRO),
-      publiclyAccessible: true,
-      vpcSubnets: {
-        subnetType: SubnetType.PUBLIC
-      }
+      publiclyAccessible: false
     });
-
-    database.connections.allowDefaultPortFromAnyIpv4();
-
-    this.dbInfo = database.secret!;
   }
 }

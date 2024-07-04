@@ -9,7 +9,8 @@ export class CredentialStoreStack extends Stack {
     const rdsDatabase = new CredentialStoreDB(this, 'CredentialStoreDB');
 
     new CredentialStoreApiGateway(this, 'CredentialStoreAPIGateway', {
-      dbInfo: rdsDatabase.dbInfo
+      database: rdsDatabase.database,
+      vpc: rdsDatabase.credentialStoreVpc
     });
   }
 }

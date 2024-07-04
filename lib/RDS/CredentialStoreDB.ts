@@ -77,10 +77,5 @@ export class CredentialStoreDB extends Construct {
       vpc: this.credentialStoreVpc,
       securityGroup: ec2SecurityGroup
     })
-
-    new CfnInstanceConnectEndpoint(this, 'EC2InstanceConnectEndpoint', {
-      subnetId: this.credentialStoreVpc.isolatedSubnets[0].subnetId,
-      securityGroupIds: [ec2ConnectEndpointSecurityGroup.uniqueId]
-    })
   }
 }

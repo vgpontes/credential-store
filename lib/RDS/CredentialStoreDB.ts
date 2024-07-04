@@ -1,4 +1,4 @@
-import { IVpc, InstanceClass, InstanceSize, InstanceType, SubnetType, Vpc } from "aws-cdk-lib/aws-ec2";
+import { AmazonLinux2023ImageSsmParameter, IVpc, Instance, InstanceClass, InstanceSize, InstanceType, SecurityGroup, SubnetType, Vpc } from "aws-cdk-lib/aws-ec2";
 import { Credentials, DatabaseInstance, DatabaseInstanceEngine, IDatabaseInstance } from "aws-cdk-lib/aws-rds";
 import { ISecret } from "aws-cdk-lib/aws-secretsmanager";
 import { Construct } from "constructs";
@@ -30,7 +30,22 @@ export class CredentialStoreDB extends Construct {
       ]
     });
 
-    this.database = new DatabaseInstance(this, 'CredentialStoreUserDB', {
+    const rdsSecurityGroup = new SecurityGroup(this, 'RDSSecurityGroup', {
+      securityGroupName: 'rds-ec2-0',
+      vpc: this.credentialStoreVpc,
+      allowAllOutbound: false,
+    })
+
+    const ec2SecurityGroup = new SecurityGroup(this, 'EC2SecurityGroup', {
+      securityGroupName: 'ec2-rds-0',
+      vpc: this.credentialStoreVpc,
+      allowAllOutbound: false,
+    })
+
+    rdsSecurityGroup.connections.allowDefaultPortFrom(ec2SecurityGroup);
+    ec2SecurityGroup.connections.allowDefaultPortTo(rdsSecurityGroup);
+
+    this.database = new DatabaseInstance(this, 'CredentialStoreDB', {
       databaseName: `CredentialStoreDB`,
       instanceIdentifier: `credentialstoredb`,
       engine: DatabaseInstanceEngine.POSTGRES,
@@ -44,7 +59,15 @@ export class CredentialStoreDB extends Construct {
       publiclyAccessible: false,
       vpcSubnets: {
         subnetType: SubnetType.PRIVATE_ISOLATED
-      }
+      },
+      securityGroups: [rdsSecurityGroup]
     });
+
+    new Instance(this, 'CredentialStoreDBEC2nstance', {
+      instanceType: InstanceType.of(InstanceClass.T2, InstanceSize.MICRO),
+      machineImage: new AmazonLinux2023ImageSsmParameter(),
+      vpc: this.credentialStoreVpc,
+      securityGroup: ec2SecurityGroup
+    })
   }
 }

@@ -1,4 +1,4 @@
-import { AmazonLinux2023ImageSsmParameter, IVpc, Instance, InstanceClass, InstanceSize, InstanceType, SecurityGroup, SubnetType, Vpc } from "aws-cdk-lib/aws-ec2";
+import { AmazonLinux2023ImageSsmParameter, AmazonLinuxGeneration, AmazonLinuxImage, IVpc, Instance, InstanceClass, InstanceSize, InstanceType, Port, SecurityGroup, SubnetType, Vpc } from "aws-cdk-lib/aws-ec2";
 import { Credentials, DatabaseInstance, DatabaseInstanceEngine, IDatabaseInstance } from "aws-cdk-lib/aws-rds";
 import { ISecret } from "aws-cdk-lib/aws-secretsmanager";
 import { Construct } from "constructs";
@@ -42,8 +42,8 @@ export class CredentialStoreDB extends Construct {
       allowAllOutbound: false,
     })
 
-    rdsSecurityGroup.connections.allowDefaultPortFrom(ec2SecurityGroup);
-    ec2SecurityGroup.connections.allowDefaultPortTo(rdsSecurityGroup);
+    rdsSecurityGroup.addIngressRule(ec2SecurityGroup, Port.POSTGRES, 'Ingress for RDS instance');
+    ec2SecurityGroup.addEgressRule(rdsSecurityGroup, Port.POSTGRES, 'Egress for EC2 instance');
 
     this.database = new DatabaseInstance(this, 'CredentialStoreDB', {
       databaseName: `CredentialStoreDB`,
@@ -65,7 +65,7 @@ export class CredentialStoreDB extends Construct {
 
     new Instance(this, 'CredentialStoreDBEC2nstance', {
       instanceType: InstanceType.of(InstanceClass.T2, InstanceSize.MICRO),
-      machineImage: new AmazonLinux2023ImageSsmParameter(),
+      machineImage: new AmazonLinuxImage({ generation: AmazonLinuxGeneration.AMAZON_LINUX_2023 }),
       vpc: this.credentialStoreVpc,
       securityGroup: ec2SecurityGroup
     })

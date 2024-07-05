@@ -39,7 +39,7 @@ export class CredentialStoreDB extends Construct {
     const ec2SecurityGroup = new SecurityGroup(this, 'EC2SecurityGroup', {
       securityGroupName: 'ec2-rds-0',
       vpc: this.credentialStoreVpc,
-      allowAllOutbound: true,
+      allowAllOutbound: false,
     })
 
     const ec2ConnectEndpointSecurityGroup = new SecurityGroup(this, 'EC2InstanceConnectEndpointSecurityGroup', {

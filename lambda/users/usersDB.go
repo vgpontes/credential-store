@@ -38,7 +38,7 @@ func ConnectDB() (*PostgresDB, error) {
 	}, nil
 }
 
-/*func (s *PostgresDB) Init() error {
+func (s *PostgresDB) Init() error {
 	return s.createUserTable()
 }
 
@@ -52,7 +52,7 @@ func (s *PostgresDB) createUserTable() error {
 		created_at TIMESTAMP NOT NULL
 	);`)
 	return err
-} */
+}
 
 func (s *PostgresDB) CreateUser(user *User) error {
 	_, err := s.db.Exec(`
@@ -91,7 +91,7 @@ func (s *PostgresDB) GetUserByUsername(userName string) (string, error) {
 }
 
 func (s *PostgresDB) GetUsers() ([]*GetUsersResponse, error) {
-	rows, err := s.db.Query("SELECT * FROM users")
+	rows, err := s.db.Query("SELECT * FROM users;")
 	if err != nil {
 		return nil, err
 	}

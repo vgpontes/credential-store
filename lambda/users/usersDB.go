@@ -27,7 +27,7 @@ func ConnectDB() (*PostgresDB, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer db.Close()
+	//defer db.Close()
 	//Call db.Ping() to check the connection
 	if pingErr := db.Ping(); pingErr != nil {
 		return nil, pingErr

@@ -3,12 +3,13 @@ import { Construct } from "constructs";
 import { LambdaFunction } from "../Lambda/LambdaFunction";
 import { Architecture, Runtime } from "aws-cdk-lib/aws-lambda";
 import { RetentionDays } from "aws-cdk-lib/aws-logs";
-import { IVpc } from "aws-cdk-lib/aws-ec2";
-import { DatabaseInstance, IDatabaseInstance } from "aws-cdk-lib/aws-rds";
+import { ISecurityGroup, IVpc } from "aws-cdk-lib/aws-ec2";
+import { DatabaseInstance } from "aws-cdk-lib/aws-rds";
 
 export interface CredentialStoreApiGatewayProps {
     database : DatabaseInstance,
-    vpc : IVpc
+    vpc : IVpc,
+    lambdaSecurityGroup : ISecurityGroup
 }
 
 export class CredentialStoreApiGateway extends Construct {
@@ -34,11 +35,11 @@ export class CredentialStoreApiGateway extends Construct {
             environmentVariables: {
                 "DB_SECRET_ID": props.database.secret!.secretName
             },
-            vpc: props.vpc
+            vpc: props.vpc,
+            securityGroups: [props.lambdaSecurityGroup]
         });
 
         props.database.secret!.grantRead(authServiceLambda.lambdaFunction);
-        props.database.connections.allowDefaultPortFrom(authServiceLambda.lambdaFunction.connections);
 
         const usersLambda = new LambdaFunction(this, 'UsersLambdaFn', {
             functionName: 'credential-store-users-api',
@@ -51,10 +52,11 @@ export class CredentialStoreApiGateway extends Construct {
             environmentVariables: {
                 "DB_SECRET_ID": props.database.secret!.secretName
             },
-            vpc: props.vpc
+            vpc: props.vpc,
+            securityGroups: [props.lambdaSecurityGroup]
         });
 
-        props.database.connections.allowDefaultPortFrom(usersLambda.lambdaFunction.connections);
+        props.database.secret!.grantRead(usersLambda.lambdaFunction);
       
         const authResource = api.root.addResource("authorize", { defaultIntegration: new LambdaIntegration(authServiceLambda.lambdaFunction) });
         authResource.addMethod("POST")

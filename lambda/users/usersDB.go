@@ -11,7 +11,7 @@ type Database interface {
 	CreateUser(*User) error
 	GetUserByID(int) (string, error)
 	GetUserByUsername(string) (string, error)
-	GetUsers() ([]*User, error)
+	GetUsers() ([]*GetUsersResponse, error)
 	UpdateUser(*User) error
 	DeleteUser(*User) error
 }
@@ -20,8 +20,8 @@ type PostgresDB struct {
 	db *sql.DB
 }
 
-func NewPostgresDB() (*PostgresDB, error) {
-	connStr := "postgres://postgres:geogGkshTw%5ETw5BU5bT1rP_iTOWqpn@credentialstoredb.cr22sw42g2wm.us-east-1.rds.amazonaws.com:5432"
+func ConnectDB() (*PostgresDB, error) {
+	connStr := "postgres://postgres:[bebeb]@credentialstoredb.cr22sw42g2wm.us-east-1.rds.amazonaws.com:5432"
 	//Pass the driver name and the connection string
 	db, err := sql.Open("pgx", connStr)
 	if err != nil {
@@ -38,7 +38,7 @@ func NewPostgresDB() (*PostgresDB, error) {
 	}, nil
 }
 
-func (s *PostgresDB) Init() error {
+/*func (s *PostgresDB) Init() error {
 	return s.createUserTable()
 }
 
@@ -52,12 +52,12 @@ func (s *PostgresDB) createUserTable() error {
 		created_at TIMESTAMP NOT NULL
 	);`)
 	return err
-}
+} */
 
 func (s *PostgresDB) CreateUser(user *User) error {
 	_, err := s.db.Exec(`
-	INSERT INTO users(username, password, salt, is_admin, created_at)
-	VALUES($1, $2, $3, $4, $5);`, user.Username, user.Password, user.Salt, user.IsAdmin, user.CreatedAt)
+	INSERT INTO users(username, password, email, salt, is_admin, created_at)
+	VALUES($1, $2, $3, $4, $5, $6);`, user.Username, user.Password, user.Email, user.Salt, user.IsAdmin, user.CreatedAt)
 	if err != nil {
 		return err
 	}
@@ -90,21 +90,18 @@ func (s *PostgresDB) GetUserByUsername(userName string) (string, error) {
 	return username, nil
 }
 
-func (s *PostgresDB) GetUsers() ([]*User, error) {
+func (s *PostgresDB) GetUsers() ([]*GetUsersResponse, error) {
 	rows, err := s.db.Query("SELECT * FROM users")
 	if err != nil {
 		return nil, err
 	}
 
-	users := []*User{}
+	users := []*GetUsersResponse{}
 	for rows.Next() {
-		user := User{}
+		user := GetUsersResponse{}
 		err := rows.Scan(
-			&user.UserID,
 			&user.Username,
-			&user.Password,
-			&user.Salt,
-			&user.CreatedAt)
+			&user.Email)
 
 		if err != nil {
 			return nil, err

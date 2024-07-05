@@ -39,6 +39,8 @@ func NewAPIServer(db Database) *APIServer {
 	}
 }
 
+
+
 func (s *APIServer) Run() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /users/signup", makeHTTPHandlerFunc(s.handleCreateAccount))
@@ -54,7 +56,7 @@ func (s *APIServer) handleCreateAccount(w http.ResponseWriter, r *http.Request) 
 		return err
 	}
 
-	user := NewUser(createUserReq.Username, createUserReq.Password)
+	user := NewUser(createUserReq.Username, createUserReq.Password, createUserReq.Email)
 	if err := s.db.CreateUser(user); err != nil {
 		return err
 	}

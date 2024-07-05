@@ -5,15 +5,12 @@ import (
 )
 
 func main() {
-	db, err := NewPostgresDB()
+	db, err := ConnectDB()
 	if err != nil {
 		log.Fatal(err)
+		panic(err)
 	}
-
-	if err := db.Init(); err != nil {
-		log.Fatal(err)
-	}
-
+	
 	server := NewAPIServer(db)
 	server.Run()
 }

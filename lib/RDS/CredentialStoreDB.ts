@@ -75,7 +75,8 @@ export class CredentialStoreDB extends Construct {
       instanceType: InstanceType.of(InstanceClass.T2, InstanceSize.MICRO),
       machineImage: new AmazonLinuxImage({ generation: AmazonLinuxGeneration.AMAZON_LINUX_2023 }),
       vpc: this.credentialStoreVpc,
-      securityGroup: ec2SecurityGroup
+      securityGroup: ec2SecurityGroup,
+      associatePublicIpAddress: true
     })
   }
 }

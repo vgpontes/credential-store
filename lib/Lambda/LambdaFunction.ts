@@ -2,7 +2,6 @@ import { LogGroup, RetentionDays } from "aws-cdk-lib/aws-logs";
 import { Construct } from "constructs";
 import { Architecture, Code, Function as LambdaFn, Runtime } from "aws-cdk-lib/aws-lambda";
 import { IVpc } from "aws-cdk-lib/aws-ec2";
-import { DatabaseInstance } from "aws-cdk-lib/aws-rds";
 
 export interface LambdaFunctionProps {
     functionName : string,

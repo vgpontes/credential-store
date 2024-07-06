@@ -29,6 +29,7 @@ func ConnectDB() (*PostgresDB, error) {
 	var dbPort int = 5432
 	var dbEndpoint string = fmt.Sprintf("%s:%d", dbHost, dbPort)
 	var region string = "us-east-1"
+	var dbName string = "credentialstoredb"
 
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
@@ -41,7 +42,8 @@ func ConnectDB() (*PostgresDB, error) {
 		return nil, err
 	}
 
-	connStr := fmt.Sprintf("postgres://%s:%s@%s:5432", dbUser, authenticationToken, dbHost)
+	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s",
+		dbHost, dbPort, dbUser, authenticationToken, dbName)
 	//Pass the driver name and the connection string
 	db, err := sql.Open("pgx", connStr)
 	if err != nil {

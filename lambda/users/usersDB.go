@@ -42,8 +42,7 @@ func ConnectDB() (*PostgresDB, error) {
 		return nil, err
 	}
 
-	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s",
-		dbHost, dbPort, dbUser, authenticationToken, dbName)
+	connStr := fmt.Sprintf("postgres://%s:%s@%s:5432/%s?sslmode=require", dbUser, authenticationToken, dbEndpoint, dbName)
 	//Pass the driver name and the connection string
 	db, err := sql.Open("pgx", connStr)
 	if err != nil {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strconv"
 
 	//We are using the pgx driver to connect to PostgreSQL
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -41,7 +42,7 @@ func ConnectDB() (*PostgresDB, error) {
 		return nil, err
 	}
 
-	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s", dbUser, authenticationToken, dbHost, string(dbPort))
+	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s", dbUser, authenticationToken, dbHost, strconv.Itoa(dbPort))
 	//Pass the driver name and the connection string
 	db, err := sql.Open("pgx", connStr)
 	if err != nil {

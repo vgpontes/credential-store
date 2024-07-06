@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/awslabs/aws-lambda-go-api-proxy/httpadapter"
@@ -67,19 +66,6 @@ func (s *APIServer) handleGetUser(w http.ResponseWriter, r *http.Request) error 
 		return err
 	}
 	return WriteJSON(w, http.StatusOK, users)
-}
-
-func (s *APIServer) handleGetUserByID(w http.ResponseWriter, r *http.Request) error {
-	userIDStr := r.PathValue("id")
-	userID, err := strconv.Atoi(userIDStr)
-	if err != nil {
-		return err
-	}
-	username, err := s.db.GetUserByID(userID)
-	if err != nil {
-		return err
-	}
-	return WriteJSON(w, http.StatusOK, username)
 }
 
 func (s *APIServer) handleGetUserByUsername(w http.ResponseWriter, r *http.Request) error {

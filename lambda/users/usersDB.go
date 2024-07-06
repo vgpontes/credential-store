@@ -1,15 +1,18 @@
 package main
 
 import (
+	"context"
 	"database/sql"
+	"fmt"
 
 	//We are using the pgx driver to connect to PostgreSQL
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/feature/rds/auth"
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 type Database interface {
 	CreateUser(*User) error
-	GetUserByID(int) (string, error)
 	GetUserByUsername(string) (string, error)
 	GetUsers() ([]*GetUsersResponse, error)
 	UpdateUser(*User) error
@@ -21,7 +24,24 @@ type PostgresDB struct {
 }
 
 func ConnectDB() (*PostgresDB, error) {
-	connStr := "postgres://postgres:IdQ2o.vm=,WNOQ_7MsY,o3VCZseAoI@credentialstoredb.cr22sw42g2wm.us-east-1.rds.amazonaws.com:5432"
+	var dbUser string = "postgres"
+	var dbHost string = "credentialstoredb.cr22sw42g2wm.us-east-1.rds.amazonaws.com"
+	var dbPort int = 5432
+	var dbEndpoint string = fmt.Sprintf("%s:%d", dbHost, dbPort)
+	var region string = "us-east-1"
+
+	cfg, err := config.LoadDefaultConfig(context.TODO())
+	if err != nil {
+		return nil, err
+	}
+
+	authenticationToken, err := auth.BuildAuthToken(
+		context.TODO(), dbEndpoint, region, dbUser, cfg.Credentials)
+	if err != nil {
+		return nil, err
+	}
+
+	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s", dbUser, authenticationToken, dbHost, string(dbPort))
 	//Pass the driver name and the connection string
 	db, err := sql.Open("pgx", connStr)
 	if err != nil {
@@ -63,19 +83,6 @@ func (s *PostgresDB) CreateUser(user *User) error {
 		return err
 	}
 	return nil
-}
-
-func (s *PostgresDB) GetUserByID(id int) (string, error) {
-	row := s.db.QueryRow(`
-	SELECT username
-	FROM users
-	WHERE user_id=$1;`, id)
-	var username string
-	err := row.Scan(&username)
-	if err != nil {
-		return "", err
-	}
-	return username, nil
 }
 
 func (s *PostgresDB) GetUserByUsername(userName string) (string, error) {

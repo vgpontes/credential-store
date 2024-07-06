@@ -8,7 +8,7 @@ import (
 	//We are using the pgx driver to connect to PostgreSQL
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/feature/rds/auth"
-	_ "github.com/jackc/pgx/v5/stdlib"
+	_ "github.com/lib/pq"
 )
 
 type Database interface {
@@ -42,9 +42,9 @@ func ConnectDB() (*PostgresDB, error) {
 		return nil, err
 	}
 
-	connStr := fmt.Sprintf("postgres://%s:%s@%s:5432/%s?sslmode=require", dbUser, authenticationToken, dbEndpoint, dbName)
+	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s", dbHost, dbPort, dbUser, authenticationToken, dbName)
 	//Pass the driver name and the connection string
-	db, err := sql.Open("pgx", connStr)
+	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		return nil, err
 	}

@@ -30,7 +30,8 @@ export class CredentialStoreDB extends Construct {
       vpcSubnets: {
         subnetType: SubnetType.PRIVATE_ISOLATED
       },
-      securityGroups: [props.databaseSecurityGroup]
+      securityGroups: [props.databaseSecurityGroup],
+      iamAuthentication: true
     });
     
     new Instance(this, 'CredentialStoreDBEC2nstance', {

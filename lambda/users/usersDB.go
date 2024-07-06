@@ -24,13 +24,11 @@ type PostgresDB struct {
 }
 
 func ConnectDB() (*PostgresDB, error) {
-	var dbUser string = "postgres"
+	var dbUser string = "lambda"
 	var dbHost string = "credentialstoredb.cr22sw42g2wm.us-east-1.rds.amazonaws.com"
-	//IdQ2o.vm=,WNOQ_7MsY,o3VCZseAoI
 	var dbPort int = 5432
 	var dbEndpoint string = fmt.Sprintf("%s:%d", dbHost, dbPort)
 	var region string = "us-east-1"
-	//var dbName string = "credentialstoredb"
 
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
@@ -49,7 +47,6 @@ func ConnectDB() (*PostgresDB, error) {
 	if err != nil {
 		return nil, err
 	}
-	//defer db.Close()
 	//Call db.Ping() to check the connection
 	if pingErr := db.Ping(); pingErr != nil {
 		return nil, pingErr
@@ -61,15 +58,10 @@ func ConnectDB() (*PostgresDB, error) {
 }
 
 func (s *PostgresDB) Init() error {
-	return s.revoke()
+	return s.createUserTable()
 }
 
-func (s *PostgresDB) revoke() error {
-	_, err := s.db.Exec(`REVOKE rds_iam FROM postgres;`)
-	return err
-}
-
-/*func (s *PostgresDB) createUserTable() error {
+func (s *PostgresDB) createUserTable() error {
 	_, err := s.db.Exec(`CREATE TABLE IF NOT EXISTS users (
 		user_id SERIAL PRIMARY KEY,
 		username VARCHAR(50) UNIQUE NOT NULL,
@@ -80,7 +72,7 @@ func (s *PostgresDB) revoke() error {
 		created_at TIMESTAMP NOT NULL
 	);`)
 	return err
-} */
+}
 
 func (s *PostgresDB) CreateUser(user *User) error {
 	_, err := s.db.Exec(`

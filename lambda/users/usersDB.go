@@ -72,7 +72,7 @@ func (s *PostgresDB) CreateUser(user *User) error {
 }
 
 func (s *PostgresDB) GetUserByUsername(userName string) (*GetUsersResponse, error) {
-	row := s.db.QueryRow("SELECT username FROM users WHERE username=$1;", userName)
+	row := s.db.QueryRow("SELECT username, email FROM users WHERE username=$1;", userName)
 	user := &GetUsersResponse{}
 	err := row.Scan(&user.Username, &user.Email)
 	if err != nil {

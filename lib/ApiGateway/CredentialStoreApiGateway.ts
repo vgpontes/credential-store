@@ -60,7 +60,7 @@ export class CredentialStoreApiGateway extends Construct {
             securityGroups: [props.lambdaSecurityGroup]
         });
 
-        props.database.grantConnect(usersLambda.lambdaFunction);
+        props.database.grantConnect(usersLambda.lambdaFunction, "lambda");
       
         const authResource = api.root.addResource("authorize", { defaultIntegration: new LambdaIntegration(authServiceLambda.lambdaFunction) });
         authResource.addMethod("POST")

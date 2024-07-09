@@ -64,6 +64,7 @@ export class CredentialStoreApiGateway extends Construct {
 
         const usersResource = api.root.addResource("users", { defaultIntegration: new LambdaIntegration(usersLambda.lambdaFunction) });
         usersResource.addMethod("GET");
+        usersResource.addMethod("POST")
 
         usersResource.addProxy();
     }

@@ -40,7 +40,7 @@ func NewAPIServer(db Database) *APIServer {
 
 func (s *APIServer) Run() {
 	mux := http.NewServeMux()
-	mux.HandleFunc("POST /users/signup", makeHTTPHandlerFunc(s.handleCreateAccount))
+	mux.HandleFunc("POST /users", makeHTTPHandlerFunc(s.handleCreateAccount))
 	mux.HandleFunc("GET /users", makeHTTPHandlerFunc(s.handleGetUser))
 	mux.HandleFunc("GET /users/{username}", makeHTTPHandlerFunc(s.handleGetUserByUsername))
 	lambda.Start(httpadapter.New(mux).ProxyWithContext)

@@ -2,6 +2,7 @@ import { LogGroup, RetentionDays } from "aws-cdk-lib/aws-logs";
 import { Construct } from "constructs";
 import { Architecture, Code, Function as LambdaFn, Runtime } from "aws-cdk-lib/aws-lambda";
 import { ISecurityGroup, IVpc } from "aws-cdk-lib/aws-ec2";
+import { Duration } from "aws-cdk-lib";
 
 export interface LambdaFunctionProps {
     functionName : string,
@@ -38,7 +39,8 @@ export class LambdaFunction extends Construct {
             logGroup: lambdaLogGroup,
             environment: props.environmentVariables,
             vpc: props.vpc,
-            securityGroups: props.securityGroups
+            securityGroups: props.securityGroups,
+            timeout: Duration.seconds(15)
         });
     }
 }

@@ -21,7 +21,7 @@ const (
 
 type Database interface {
 	CreateUser(*User) error
-	GetUserByUsername(string) (string, error)
+	GetUserByUsername(string) (*GetUsersResponse, error)
 	GetUsers() ([]*GetUsersResponse, error)
 	UpdateUser(*User) error
 	DeleteUser(*User) error
@@ -71,21 +71,18 @@ func (s *PostgresDB) CreateUser(user *User) error {
 	return nil
 }
 
-func (s *PostgresDB) GetUserByUsername(userName string) (string, error) {
-	row := s.db.QueryRow(`
-	SELECT username
-	FROM users
-	WHERE username$1;`, userName)
-	var username string
-	err := row.Scan(&username)
+func (s *PostgresDB) GetUserByUsername(userName string) (*GetUsersResponse, error) {
+	row := s.db.QueryRow("SELECT username FROM users WHERE username$1;", userName)
+	user := &GetUsersResponse{}
+	err := row.Scan(&user.Username, &user.Email)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return username, nil
+	return user, nil
 }
 
 func (s *PostgresDB) GetUsers() ([]*GetUsersResponse, error) {
-	rows, err := s.db.Query("SELECT * FROM users;")
+	rows, err := s.db.Query("SELECT username, email FROM users;")
 	if err != nil {
 		return nil, err
 	}

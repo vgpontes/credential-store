@@ -33,13 +33,14 @@ export class CredentialStoreApiGateway extends Construct {
             architecture: Architecture.ARM_64,
             logGroupRetention: RetentionDays.TWO_WEEKS,
             environmentVariables: {
-                "DB_SECRET_ID": props.database.secret!.secretName
+                "DB_HOST": props.database.dbInstanceEndpointAddress,
+                "DB_PORT": props.database.dbInstanceEndpointPort,
+                "DB_USER": "lambda",
+                "DB_NAME": "CredentialStoreDB"
             },
             vpc: props.vpc,
             securityGroups: [props.lambdaSecurityGroup]
         });
-
-        props.database.secret!.grantRead(authServiceLambda.lambdaFunction);
 
         const usersLambda = new LambdaFunction(this, 'UsersLambdaFn', {
             functionName: 'credential-store-users-api',
@@ -50,13 +51,15 @@ export class CredentialStoreApiGateway extends Construct {
             architecture: Architecture.ARM_64,
             logGroupRetention: RetentionDays.TWO_WEEKS,
             environmentVariables: {
-                "DB_SECRET_ID": props.database.secret!.secretName
+                "DB_HOST": props.database.dbInstanceEndpointAddress,
+                "DB_PORT": props.database.dbInstanceEndpointPort,
+                "DB_USER": "lambda",
+                "DB_NAME": "CredentialStoreDB"
             },
             vpc: props.vpc,
             securityGroups: [props.lambdaSecurityGroup]
         });
 
-        props.database.secret!.grantRead(usersLambda.lambdaFunction);
         props.database.grantConnect(usersLambda.lambdaFunction);
       
         const authResource = api.root.addResource("authorize", { defaultIntegration: new LambdaIntegration(authServiceLambda.lambdaFunction) });

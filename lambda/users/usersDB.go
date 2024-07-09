@@ -4,19 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"os"
 
 	//We are using the pgx driver to connect to PostgreSQL
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/feature/rds/auth"
 	_ "github.com/lib/pq"
-)
-
-const (
-	host   = "credentialstoredb.cr22sw42g2wm.us-east-1.rds.amazonaws.com"
-	port   = 5432
-	user   = "lambda"
-	dbName = "CredentialStoreDB"
-	region = "us-east-1"
 )
 
 type Database interface {
@@ -32,7 +25,13 @@ type PostgresDB struct {
 }
 
 func ConnectDB() (*PostgresDB, error) {
-	var dbEndpoint string = fmt.Sprintf("%s:%d", host, port)
+	host := os.Getenv("DB_HOST")
+	port := os.Getenv("DB_PORT")
+	user := os.Getenv("DB_USER")
+	dbName := os.Getenv("DB_NAME")
+	region := os.Getenv("AWS_REGION")
+
+	var dbEndpoint string = fmt.Sprintf("%s:%s", host, port)
 
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
@@ -45,7 +44,7 @@ func ConnectDB() (*PostgresDB, error) {
 		return nil, err
 	}
 
-	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s", host, port, user, authenticationToken, dbName)
+	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s", host, port, user, authenticationToken, dbName)
 	//Pass the driver name and the connection string
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {

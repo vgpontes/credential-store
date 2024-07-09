@@ -7,6 +7,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/awslabs/aws-lambda-go-api-proxy/httpadapter"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func WriteJSON(w http.ResponseWriter, status int, v any) error {
@@ -59,12 +60,25 @@ func (s *APIServer) handleCreateAccount(w http.ResponseWriter, r *http.Request) 
 		return WriteJSON(w, http.StatusBadRequest, invalidPayloadResponse)
 	}
 
-	user := NewUser(createUserReq.Username, createUserReq.Password, createUserReq.Email)
+	hashedPassword, err := saltAndHash(createUserReq.Password)
+	if err != nil {
+		return err
+	}
+
+	user := NewUser(createUserReq.Username, hashedPassword, createUserReq.Email)
 	if err := s.db.CreateUser(user); err != nil {
 		return err
 	}
 
 	return WriteJSON(w, http.StatusOK, user)
+}
+
+func saltAndHash(password string) (string, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), 12)
+	if err != nil {
+		return "", err
+	}
+	return string(hash), nil
 }
 
 func validatePayload(payload CreateUserRequest) (bool, string) {

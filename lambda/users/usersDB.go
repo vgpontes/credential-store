@@ -67,8 +67,8 @@ func ConnectDB() (*PostgresDB, error) {
 
 func (s *PostgresDB) CreateUser(user *User) error {
 	_, err := s.db.Exec(`
-	INSERT INTO users(username, password, email, salt, is_admin, created_at)
-	VALUES($1, $2, $3, $4, $5, $6);`, user.Username, user.Password, user.Email, user.Salt, user.IsAdmin, user.CreatedAt)
+	INSERT INTO users(username, password, email, is_admin, created_at)
+	VALUES($1, $2, $3, $4, $5);`, user.Username, user.Password, user.Email, user.IsAdmin, user.CreatedAt)
 	if err != nil {
 		return err
 	}

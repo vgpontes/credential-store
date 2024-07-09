@@ -20,7 +20,6 @@ type User struct {
 	Username  string    `json:"userName"`
 	Password  string    `json:"password"`
 	Email     string    `json:"email"`
-	Salt      string    `json:"salt"`
 	IsAdmin   bool      `json:"isAdmin"`
 	CreatedAt time.Time `json:"createdAt"`
 }
@@ -30,7 +29,6 @@ func NewUser(username, password, email string) *User {
 		Username:  username,
 		Password:  password,
 		Email:     email,
-		Salt:      "dhwhdhbdfbeb",
 		IsAdmin:   false,
 		CreatedAt: time.Now().UTC(),
 	}

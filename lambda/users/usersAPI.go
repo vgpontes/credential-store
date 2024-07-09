@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/awslabs/aws-lambda-go-api-proxy/httpadapter"
@@ -52,12 +53,40 @@ func (s *APIServer) handleCreateAccount(w http.ResponseWriter, r *http.Request) 
 		return err
 	}
 
+	isPayloadValid, invalidPayloadResponse := validatePayload(createUserReq)
+
+	if !isPayloadValid {
+		return WriteJSON(w, http.StatusBadRequest, invalidPayloadResponse)
+	}
+
 	user := NewUser(createUserReq.Username, createUserReq.Password, createUserReq.Email)
 	if err := s.db.CreateUser(user); err != nil {
 		return err
 	}
 
 	return WriteJSON(w, http.StatusOK, user)
+}
+
+func validatePayload(payload CreateUserRequest) (bool, string) {
+	var invalidParams []string
+
+	if payload.Username == "" {
+		invalidParams = append(invalidParams, "username")
+	}
+
+	if payload.Password == "" {
+		invalidParams = append(invalidParams, "password")
+	}
+
+	if payload.Email == "" {
+		invalidParams = append(invalidParams, "email")
+	}
+
+	if len(invalidParams) > 0 {
+		var invalidPayloadResponse string = "User not inserted, missing required attributes: " + strings.Join(invalidParams, ", ")
+		return false, invalidPayloadResponse
+	}
+	return true, ""
 }
 
 func (s *APIServer) handleGetUser(w http.ResponseWriter, r *http.Request) error {

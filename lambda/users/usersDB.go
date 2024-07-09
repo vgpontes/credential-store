@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log"
 	"os"
 
 	//We are using the pgx driver to connect to PostgreSQL
@@ -35,12 +36,14 @@ func ConnectDB() (*PostgresDB, error) {
 
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
+		log.Println("Error loading default AWS SDK config")
 		return nil, err
 	}
 
 	authenticationToken, err := auth.BuildAuthToken(
 		context.TODO(), dbEndpoint, region, user, cfg.Credentials)
 	if err != nil {
+		log.Printf("Error building auth token to database. Endpoint: %s, Region: %s, User: %s", dbEndpoint, region, user)
 		return nil, err
 	}
 
@@ -48,10 +51,12 @@ func ConnectDB() (*PostgresDB, error) {
 	//Pass the driver name and the connection string
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
+		log.Printf("Error connecting to database. Host: %s, Port: %s, User: %s, dbName: %s", host, port, user, dbName)
 		return nil, err
 	}
 	//Call db.Ping() to check the connection
 	if pingErr := db.Ping(); pingErr != nil {
+		log.Printf("Error pinging database")
 		return nil, pingErr
 	}
 

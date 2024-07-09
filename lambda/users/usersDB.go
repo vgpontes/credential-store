@@ -11,6 +11,14 @@ import (
 	_ "github.com/lib/pq"
 )
 
+const (
+	host   = "credentialstoredb.cr22sw42g2wm.us-east-1.rds.amazonaws.com"
+	port   = 5432
+	user   = "lambda"
+	dbName = "CredentialStoreDB"
+	region = "us-east-1"
+)
+
 type Database interface {
 	CreateUser(*User) error
 	GetUserByUsername(string) (string, error)
@@ -24,11 +32,7 @@ type PostgresDB struct {
 }
 
 func ConnectDB() (*PostgresDB, error) {
-	var dbUser string = "lambda"
-	var dbHost string = "credentialstoredb.cr22sw42g2wm.us-east-1.rds.amazonaws.com"
-	var dbPort int = 5432
-	var dbEndpoint string = fmt.Sprintf("%s:%d", dbHost, dbPort)
-	var region string = "us-east-1"
+	var dbEndpoint string = fmt.Sprintf("%s:%d", host, port)
 
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
@@ -36,12 +40,12 @@ func ConnectDB() (*PostgresDB, error) {
 	}
 
 	authenticationToken, err := auth.BuildAuthToken(
-		context.TODO(), dbEndpoint, region, dbUser, cfg.Credentials)
+		context.TODO(), dbEndpoint, region, user, cfg.Credentials)
 	if err != nil {
 		return nil, err
 	}
 
-	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s", dbHost, dbPort, dbUser, authenticationToken)
+	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s", host, port, user, authenticationToken, dbName)
 	//Pass the driver name and the connection string
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {

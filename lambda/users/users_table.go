@@ -77,3 +77,7 @@ func (c *UsersTable) UpdateUser(*User) error {
 func (c *UsersTable) DeleteUser(*User) error {
 	return nil
 }
+
+func (c *UsersTable) GetDatabase() *sql.DB {
+	return c.db
+}

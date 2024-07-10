@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"strings"
 
@@ -11,10 +12,20 @@ import (
 )
 
 func main() {
+	db, err := NewUsersTable()
+	if err != nil {
+		log.Fatal(err)
+		panic(err)
+	}
+	server := NewAPIServer(db)
+	server.Run()
+}
+
+func (s *UserAPIServer) Run() {
 	mux := http.NewServeMux()
-	mux.HandleFunc("POST /users", makeHTTPHandlerFunc(HandlePutUser))
-	mux.HandleFunc("GET /users", makeHTTPHandlerFunc(HandleGetAllUsers))
-	mux.HandleFunc("GET /users/{username}", makeHTTPHandlerFunc(HandleGetUser))
+	mux.HandleFunc("POST /users", makeHTTPHandlerFunc(s.handlePutUser))
+	mux.HandleFunc("GET /users", makeHTTPHandlerFunc(s.handleGetAllUsers))
+	mux.HandleFunc("GET /users/{username}", makeHTTPHandlerFunc(s.handleGetUser))
 	lambda.Start(httpadapter.New(mux).ProxyWithContext)
 }
 
@@ -34,35 +45,24 @@ func makeHTTPHandlerFunc(f apiFunc) http.HandlerFunc {
 	}
 }
 
-func HandleGetUser(w http.ResponseWriter, r *http.Request) error {
-	db, err := NewUsersTable()
-	if err != nil {
-		return err
-	}
-
+func (s *UserAPIServer) handleGetUser(w http.ResponseWriter, r *http.Request) error {
 	usernameStr := r.PathValue("username")
-	username, err := db.GetUser(usernameStr)
+	user, err := s.db.GetUser(usernameStr)
 	if err != nil {
 		return err
 	}
-	return WriteJSON(w, http.StatusOK, username)
+	return WriteJSON(w, http.StatusOK, user)
 }
 
-func HandleGetAllUsers(w http.ResponseWriter, r *http.Request) error {
-	db, err := NewUsersTable()
-	if err != nil {
-		return err
-	}
-
-	users, err := db.GetAllUsers()
-
+func (s *UserAPIServer) handleGetAllUsers(w http.ResponseWriter, r *http.Request) error {
+	users, err := s.db.GetAllUsers()
 	if err != nil {
 		return err
 	}
 	return WriteJSON(w, http.StatusOK, users)
 }
 
-func HandlePutUser(w http.ResponseWriter, r *http.Request) error {
+func (s *UserAPIServer) handlePutUser(w http.ResponseWriter, r *http.Request) error {
 	createUserReq := CreateUserRequest{}
 	if err := json.NewDecoder(r.Body).Decode(&createUserReq); err != nil {
 		return err
@@ -74,19 +74,13 @@ func HandlePutUser(w http.ResponseWriter, r *http.Request) error {
 		return WriteJSON(w, http.StatusBadRequest, invalidPayloadResponse)
 	}
 
-	db, err := NewUsersTable()
-
-	if err != nil {
-		return err
-	}
-
 	hashedPassword, err := saltAndHash(createUserReq.Password)
 	if err != nil {
 		return err
 	}
 
 	user := NewUser(createUserReq.Username, hashedPassword, createUserReq.Email)
-	if err := db.PutUser(user); err != nil {
+	if err := s.db.PutUser(user); err != nil {
 		return err
 	}
 

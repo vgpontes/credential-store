@@ -24,6 +24,10 @@ type User struct {
 	CreatedAt time.Time `json:"createdAt"`
 }
 
+type UserAPIServer struct {
+	db IUsersTable
+}
+
 func NewUser(username, password, email string) *User {
 	return &User{
 		Username:  username,
@@ -31,5 +35,11 @@ func NewUser(username, password, email string) *User {
 		Email:     email,
 		IsAdmin:   false,
 		CreatedAt: time.Now().UTC(),
+	}
+}
+
+func NewAPIServer(db IUsersTable) *UserAPIServer {
+	return &UserAPIServer{
+		db : db,
 	}
 }

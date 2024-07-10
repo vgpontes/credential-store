@@ -50,7 +50,7 @@ func NewCredentialStoreDB() (*CredentialStoreDB, error) {
 		log.Printf("Error pinging database")
 		return nil, pingErr
 	}
-
+	log.Printf("New database connection established")
 	return &CredentialStoreDB{
 		db: db,
 	}, nil
